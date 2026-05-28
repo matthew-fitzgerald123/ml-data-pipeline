@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv
+venv/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+data/raw/*.parquet
+data/processed/*.parquet
+mlruns/
+*.log
+.DS_Store

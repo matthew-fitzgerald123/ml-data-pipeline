@@ -1,0 +1,28 @@
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+
+generation:
+  n_customers: 500
+  n_merchants: 100
+  n_transactions: 50000
+  start_date: "2025-01-01"
+  end_date: "2026-01-01"
+  seed: 42
+
+features:
+  windows: [7, 30, 90]
+
+store:
+  postgres:
+    host: localhost
+    port: 5432
+    database: feature_store
+  redis:
+    host: localhost
+    port: 6379
+    ttl: 3600
+
+serving:
+  host: 0.0.0.0
+  port: 8000
