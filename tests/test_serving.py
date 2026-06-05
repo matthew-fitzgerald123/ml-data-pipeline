@@ -59,3 +59,26 @@ def test_get_features_no_snapshot_before_as_of(client):
     as_of = "2020-01-01T00:00:00"
     resp = client.get("/features/cust_0001", params={"as_of": as_of})
     assert resp.status_code == 404
+
+
+def test_list_versions_returns_snapshot(client):
+    resp = client.get("/versions")
+    assert resp.status_code == 200
+    versions = resp.json()
+    assert isinstance(versions, list)
+    assert len(versions) == 1
+    v = versions[0]
+    assert v["version"] == "test_snapshot"
+    assert "timestamp" in v
+    assert "row_count" in v
+    assert "schema_hash" in v
+
+
+def test_list_versions_empty_store(tmp_path):
+    empty_store = FeatureStore(store_dir=str(tmp_path / "empty"))
+    app.dependency_overrides[get_store] = lambda: empty_store
+    client = TestClient(app)
+    resp = client.get("/versions")
+    app.dependency_overrides.clear()
+    assert resp.status_code == 200
+    assert resp.json() == []
