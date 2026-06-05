@@ -33,6 +33,11 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/versions")
+def list_versions(store: FeatureStore = Depends(get_store)) -> list[dict[str, Any]]:
+    return store.list_versions()
+
+
 @app.get("/features/{customer_id}")
 def get_features(
     customer_id: str,
