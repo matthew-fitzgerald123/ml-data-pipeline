@@ -13,8 +13,8 @@ Synthetic financial transactions are generated, ingested, and validated against 
 | Ingestion | Synthetic transaction generator and raw Parquet ingestion |
 | Validation | Pandera schemas for raw data and engineered features |
 | Features | Windowed customer aggregations and behavioral ratios |
-| Store | Versioned Parquet offline store (PostgreSQL + Redis serving planned) |
-| Serving | Point-in-time FastAPI endpoint (in progress) |
+| Store | Versioned Parquet offline store with per-version manifests (schema hash, row count, git SHA) |
+| Serving | FastAPI endpoint for point-in-time feature lookups by customer ID |
 
 ## Getting Started
 
@@ -29,6 +29,9 @@ python -c "from src.features.pipeline import run_feature_pipeline; run_feature_p
 
 # run tests
 pytest tests/
+
+# serve point-in-time feature lookups
+uvicorn src.serving.app:app --reload
 ```
 
 ## Feature Engineering
@@ -53,10 +56,12 @@ src/
   ingestion/    transaction generator and ingestion pipeline
   features/     feature transforms and engineering pipeline
   validation/   Pandera schemas and data contracts
-  store/        offline and online feature store
-  serving/      FastAPI serving layer
+  store/        versioned Parquet offline feature store
+  serving/      FastAPI point-in-time serving layer
 flows/          Prefect pipeline flows
+config/         pipeline configuration
 data/
   raw/          ingested raw Parquet files
   processed/    validated, transformed feature sets
+tests/          unit tests for ingestion, features, store, and serving
 ```
