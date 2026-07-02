@@ -27,6 +27,9 @@ python -c "from src.ingestion.generator import generate_transactions, save_raw; 
 # run feature pipeline
 python -c "from src.features.pipeline import run_feature_pipeline; run_feature_pipeline()"
 
+# or run the full Prefect flow (generate, build features, write to versioned store)
+python -m flows.pipeline_flow
+
 # run tests
 pytest tests/
 
