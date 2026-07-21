@@ -14,7 +14,7 @@ Synthetic financial transactions are generated, ingested, and validated against 
 | Validation | Pandera schemas for raw data and engineered features |
 | Features | Windowed customer aggregations and behavioral ratios |
 | Store | Versioned Parquet offline store with per-version manifests (schema hash, row count, git SHA) |
-| Serving | FastAPI endpoint for point-in-time feature lookups by customer ID |
+| Serving | FastAPI point-in-time feature lookups, single customer or batch training-set joins |
 
 ## Getting Started
 
@@ -51,6 +51,22 @@ Time features: `hour_of_day`, `day_of_week`, `is_weekend`
 ## Point-in-Time Correctness
 
 All windows use `closed="left"` to exclude the current row's timestamp. Features reflect only information available at transaction time, making them safe for model training without leakage.
+
+## Serving
+
+The serving layer exposes point-in-time feature retrieval:
+
+- `GET /features/{customer_id}?as_of=<ISO8601>` returns the latest features for one customer as of a single timestamp.
+- `POST /features/batch` resolves many `(customer_id, as_of)` pairs in one call, each against its own timestamp. This is the training-set generation join: every row is read as of its own event time, so labels observed later cannot leak backward into the features. Customers or timestamps with no eligible snapshot are reported per entry with `found: false` rather than failing the whole request.
+
+```bash
+curl -X POST localhost:8000/features/batch \
+  -H "Content-Type: application/json" \
+  -d '{"entries": [
+        {"customer_id": "cust_0001", "as_of": "2024-01-15T12:00:00"},
+        {"customer_id": "cust_0003", "as_of": "2024-02-01T09:30:00"}
+      ]}'
+```
 
 ## Project Structure
 
